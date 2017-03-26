@@ -23,7 +23,7 @@ server.listen(port);
 
 var azure = require('azure');
 var hubName = 'pushApp';
-var connectionString = 'Endpoint=sb://webappas.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=dV/6PKkTR+t+54goi+xYhn1N7vs2SuImEvOEvULX1O8=';
+var connectionString = 'Endpoint=sb://azurenotificationtest.servicebus.windows.net/;SharedAccessKeyName=DefaultFullSharedAccessSignature;SharedAccessKey=Q+Rgz8F1XhNO83Tl3GMytYa3jE6PGS6zAy1WliFD2zg=';
 var notificationHubService = azure.createNotificationHubService(hubName,connectionString);
 
 var io = require('socket.io').listen(server);
