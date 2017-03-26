@@ -21,13 +21,32 @@ var port = process.env.PORT || 3000;
 var server = http.createServer(app);
 server.listen(port);
 
+var azure = require('azure');
+var hubName = 'pushApp';
+var connectionString = 'Endpoint=sb://webappas.servicebus.windows.net/;SharedAccessKeyName=DefaultListenSharedAccessSignature;SharedAccessKey=dV/6PKkTR+t+54goi+xYhn1N7vs2SuImEvOEvULX1O8=';
+var notificationHubService = azure.createNotificationHubService(hubName,connectionString);
 
 var io = require('socket.io').listen(server);
 io.sockets.on('connection',function(socket){
-    socket.emit('toclient',{msg:'Welcome !'});
-    socket.on('fromclient',function(data){
-        socket.broadcast.emit('toclient',data); // 자신을 제외하고 다른 클라이언트에게 보냄
-        socket.emit('toclient',data); // 해당 클라이언트에게만 보냄. 다른 클라이언트에 보낼려면?
-        console.log('Message from client :'+data.msg);
+    socket.emit('toclient',{msg:'Welcome!'});
+    notificationHubService.gcm.send(null, {data:{id:socket.id, message:'Welcome'}},function(error){
+        if(!error){
+            console.log('send');
+        }
     });
+
+    socket.on('fromclient',function(data){
+        socket.broadcast.emit('toclient',data);
+        socket.emit('toclient',data);
+        console.log('Message from client :'+data.msg);
+
+        if(!data.msg==""){
+            notificationHubService.gcm.send(null, {data:{id:socket.id, message:data.msg}}, function(error){
+                if(!error){
+                    //notification sent
+                        console.log('send');
+                }
+            });
+        }
+    })
 });
